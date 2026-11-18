@@ -144,3 +144,46 @@ Verification after all items:
 3. Validate any JSON-LD at https://validator.schema.org and https://search.google.com/test/rich-results.
 4. Re-run `/seo audit` (Claude SEO Master Skills) and confirm these finding IDs no longer appear.
 ````
+
+## Extra prompt: astrologer profile SEO
+
+````text
+You are adding SEO components and structured data to the astrologer profile pages of https://starstell.com.
+Work in this repository. Read the relevant files before editing. When done, list every file changed and how you verified each step.
+
+Goal: make every astrologer profile page (https://starstell.com/best-astrologer/{slug}) indexable and eligible for rich results in Google and Bing.
+Reference kit with ready-made files: https://github.com/ankushpanday33/starstell-seo-audit/tree/main/astrologer-profile
+(template JSON-LD, a Laravel builder class, head and body Blade partials, sitemap route). Adapt it to this codebase if the stack differs.
+
+Do these in order:
+
+1. Make /best-astrologer/{slug} return a real HTTP 200 page for every active astrologer. Today most of these URLs redirect to /talk-to-astrologer. Do not redirect them.
+
+2. In <head>, server-render for each profile:
+   - a unique <title>: "{Name} | Online Astrologer for {main speciality} | StarsTell"
+   - a unique meta description of 120 to 155 characters built from the bio (never empty)
+   - an absolute self-referencing canonical on https://starstell.com (non-www, no /public/ in the path)
+   - Open Graph (type profile, title, description, url, image) and Twitter card tags, with an absolute image URL that points to a real file
+   - robots: index,follow,max-image-preview:large
+
+3. Add one JSON-LD script with an @graph, built from the astrologer record (use https://schema.org, not http):
+   - Organization (https://starstell.com/#organization)
+   - ProfilePage whose mainEntity is the Person, with dateModified
+   - Person: name, url, image, description (under 160 characters), jobTitle "Astrologer", knowsAbout (specialities), knowsLanguage, worksFor the Organization
+   - ProfessionalService: provider is the Person, areaServed India, availableLanguage, offers with UnitPriceSpecification in INR per minute (unitCode MIN)
+   - aggregateRating and review ONLY when real reviews exist (count above 0). Never invent or round up ratings. Omit both when there are none.
+   - BreadcrumbList: Home, Talk to Astrologer, astrologer name
+   - FAQPage with 4 to 6 questions. The same questions and answers must be visible on the page.
+   Drop any empty field instead of printing an empty string. Encode with JSON_HEX_TAG so text can never break out of the script tag.
+
+4. Add these visible page components, server-rendered, in this order:
+   breadcrumb; hero with exactly one H1 ("{Name}: Online {speciality} Astrologer"), photo with real alt text, price and a call-to-action button; quick facts table (specialities, languages, experience, modes, price per minute); an About section of 150 to 300 unique words; qualifications and verification (only what StarsTell has verified); topics the astrologer covers, each linking to a service page; ratings and reviews (real ones only, same data as the schema); FAQ; 6 to 8 crawlable links to similar astrologers; and a short disclaimer that astrology is guidance and not medical, legal or financial advice.
+
+5. Add /sitemap-astrologers.xml listing every active profile with an accurate lastmod. Reference it from sitemap.xml and add "Sitemap: https://starstell.com/sitemap-astrologers.xml" to robots.txt.
+
+6. Send new and changed profile URLs to Bing with IndexNow.
+
+Rules: mark up only what is visible on the page. Do not change unrelated pages or the visual design beyond these components. If a data field is missing in the database, say so and leave that part out instead of guessing.
+
+Done when: ten sample profiles return HTTP 200 with the tags above in the raw HTML (no JavaScript needed), pass https://search.google.com/test/rich-results and https://validator.schema.org with no errors, and the sitemap lists them.
+````
