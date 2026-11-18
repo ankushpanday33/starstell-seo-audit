@@ -27,6 +27,7 @@ StarsTell is indexable and not blocked, but its structure leaks value. About 190
 | [fix-prompts/cursor.md](fix-prompts/cursor.md) | Prompt for Cursor |
 | [fix-prompts/antigravity.md](fix-prompts/antigravity.md) | Prompt for Antigravity |
 | [fix-prompts/lovable.md](fix-prompts/lovable.md) | Prompt for Lovable |
+| [astrologer-profile/](astrologer-profile/README.md) | Components and JSON-LD kit for astrologer profile pages |
 
 ## Limits of this audit
 
